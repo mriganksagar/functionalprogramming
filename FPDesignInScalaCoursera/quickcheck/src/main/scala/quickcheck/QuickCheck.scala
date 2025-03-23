@@ -128,7 +128,7 @@ object checkDemo extends App with IntHeap with BinomialHeap {
     else 1 + getLength(deleteMin(h))
 
   (1 to 10).foreach { i =>
-    val seed = Seed(i) // Create a seed
+    val seed = Seed.random() // Create a seed
     println(seed)
     val heap =
       genHeap(Gen.Parameters.default, seed) // Generate with this seed

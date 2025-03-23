@@ -91,11 +91,3 @@ trait Bogus5BinomialHeap extends BinomialHeap:
   override def meld(ts1: H, ts2: H) = ts1 match
     case Nil       => ts2
     case t1 :: ts1 => List(Node(t1.x, t1.r, ts1 ++ ts2))
-
-object DemoDemo extends App {
-
-  val heap = new BinomialHeap with IntHeap
-  val melded_h1 =
-    heap.meld(heap.empty, heap.insert(2, heap.insert(1, heap.empty)))
-  println(melded_h1)
-}
