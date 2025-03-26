@@ -1,6 +1,6 @@
 val scala3Version = "3.6.4"
 
-lazy val root = project
+lazy val course = project
   .in(file("."))
   .settings(
     name := "course",

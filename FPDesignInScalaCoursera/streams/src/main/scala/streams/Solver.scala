@@ -8,7 +8,7 @@ trait Solver extends GameDef:
   /**
    * Returns `true` if the block `b` is at the final position
    */
-  def done(b: Block): Boolean = ???
+  def done(b: Block): Boolean = b.b1 == goal && b.b2 == goal
 
   /**
    * This function takes two arguments: the current block `b` and
@@ -26,15 +26,19 @@ trait Solver extends GameDef:
    * It should only return valid neighbors, i.e. block positions
    * that are inside the terrain.
    */
-  def neighborsWithHistory(b: Block, history: List[Move]): LazyList[(Block, List[Move])] = ???
+  def neighborsWithHistory(b: Block, history: List[Move]): LazyList[(Block, List[Move])] = LazyList.from(b.legalNeighbors).map{
+      case ( b, m) => (b, m::history)
+    }
 
   /**
    * This function returns the list of neighbors without the block
    * positions that have already been explored. We will use it to
    * make sure that we don't explore circular paths.
    */
-  def newNeighborsOnly(neighbors: LazyList[(Block, List[Move])],
-                       explored: Set[Block]): LazyList[(Block, List[Move])] = ???
+  def newNeighborsOnly(neighbors: LazyList[(Block, List[Move])], explored: Set[Block]): LazyList[(Block, List[Move])] =
+    neighbors.filterNot {
+      case (b, _) => explored.contains(b)
+    }
 
   /**
    * The function `from` returns the lazy list of all possible paths
@@ -59,19 +63,24 @@ trait Solver extends GameDef:
    * of different paths - the implementation should naturally
    * construct the correctly sorted lazy list.
    */
-  def from(initial: LazyList[(Block, List[Move])],
-           explored: Set[Block]): LazyList[(Block, List[Move])] = ???
+  def from(initial: LazyList[(Block, List[Move])], explored: Set[Block]): LazyList[(Block, List[Move])] =
+    val neighbours = newNeighborsOnly(initial.flatMap{
+      case (block, history) => neighborsWithHistory(block, history)
+    }, explored)
+    
+    val newExplored = explored ++ neighbours.map(_._1)
+    initial#:::from(neighbours, newExplored)
 
   /**
    * The lazy list of all paths that begin at the starting block.
    */
-  lazy val pathsFromStart: LazyList[(Block, List[Move])] = ???
+  lazy val pathsFromStart: LazyList[(Block, List[Move])] = from(LazyList((startBlock, Nil)), Set(startBlock))
 
   /**
    * Returns a lazy list of all possible pairs of the goal block along
    * with the history how it was reached.
    */
-  lazy val pathsToGoal: LazyList[(Block, List[Move])] = ???
+  lazy val pathsToGoal: LazyList[(Block, List[Move])] = pathsFromStart.filter((block,_) => done(block))
 
   /**
    * The (or one of the) shortest sequence(s) of moves to reach the
@@ -81,4 +90,4 @@ trait Solver extends GameDef:
    * the first move that the player should perform from the starting
    * position.
    */
-  lazy val solution: List[Move] = ???
+  lazy val solution: List[Move] = pathsToGoal.head._2.reverse

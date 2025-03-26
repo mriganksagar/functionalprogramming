@@ -71,35 +71,30 @@ trait GameDef:
   enum Move:
     case Left, Right, Up, Down
 
-  /**
-   * This function returns the block at the start position of
-   * the game.
-   */
-  def startBlock: Block = ???
+  /** This function returns the block at the start position of the game.
+    */
+  def startBlock: Block = Block(startPos, startPos)
 
-
-  /**
-   * A block is represented by the position of the two cubes that
-   * it consists of. We make sure that `b1` is lexicographically
-   * smaller than `b2`.
-   */
+  /** A block is represented by the position of the two cubes that it consists
+    * of. We make sure that `b1` is lexicographically smaller than `b2`.
+    */
   case class Block(b1: Pos, b2: Pos):
 
     // checks the requirement mentioned above
-    require(b1.row <= b2.row && b1.col <= b2.col, "Invalid block position: b1=" + b1 + ", b2=" + b2)
+    require(
+      b1.row <= b2.row && b1.col <= b2.col,
+      "Invalid block position: b1=" + b1 + ", b2=" + b2
+    )
 
-    /**
-     * Returns a block where the `row` coordinates of `b1` and `b2` are
-     * changed by `d1` and `d2`, respectively.
-     */
+    /** Returns a block where the `row` coordinates of `b1` and `b2` are changed
+      * by `d1` and `d2`, respectively.
+      */
     def deltaRow(d1: Int, d2: Int) = Block(b1.deltaRow(d1), b2.deltaRow(d2))
 
-    /**
-     * Returns a block where the `col` coordinates of `b1` and `b2` are
-     * changed by `d1` and `d2`, respectively.
-     */
+    /** Returns a block where the `col` coordinates of `b1` and `b2` are changed
+      * by `d1` and `d2`, respectively.
+      */
     def deltaCol(d1: Int, d2: Int) = Block(b1.deltaCol(d1), b2.deltaCol(d2))
-
 
     /** The block obtained by moving left */
     def left = if isStanding then             deltaCol(-2, -1)
@@ -122,24 +117,25 @@ trait GameDef:
                else                        deltaRow(2, 1)
 
 
-    /**
-     * Returns the list of blocks that can be obtained by moving
-     * the current block, together with the corresponding move.
-     */
-    def neighbors: List[(Block, Move)] = ???
+    /** Returns the list of blocks that can be obtained by moving the current
+      * block, together with the corresponding move.
+      */
+    def neighbors: List[(Block, Move)] = List(
+      left -> Move.Left,
+      right -> Move.Right,
+      up -> Move.Up,
+      down -> Move.Down
+    )
 
-    /**
-     * Returns the list of positions reachable from the current block
-     * which are inside the terrain.
-     */
-    def legalNeighbors: List[(Block, Move)] = ???
+    /** Returns the list of positions reachable from the current block which are
+      * inside the terrain.
+      */
+    def legalNeighbors: List[(Block, Move)] = neighbors.filter(_._1.isLegal)
 
-    /**
-     * Returns `true` if the block is standing.
-     */
-    def isStanding: Boolean = ???
+    /** Returns `true` if the block is standing.
+      */
+    def isStanding: Boolean = b1 == b2
 
-    /**
-     * Returns `true` if the block is entirely inside the terrain.
-     */
-    def isLegal: Boolean = ???
+    /** Returns `true` if the block is entirely inside the terrain.
+      */
+    def isLegal: Boolean = terrain(b1) && terrain(b2)
