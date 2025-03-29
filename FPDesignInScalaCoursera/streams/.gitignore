@@ -17,3 +17,4 @@ logs/
 .bsp
 
 project/project/
+project/metals.sbt
