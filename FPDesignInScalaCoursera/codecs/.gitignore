@@ -15,3 +15,5 @@ logs/
 *.csv
 *.dat
 .bsp
+project/project
+project/metals.sbt
