@@ -9,10 +9,10 @@ object Polynomial extends PolynomialInterface:
 
   def computeSolutions(a: Signal[Double], b: Signal[Double],
       c: Signal[Double], delta: Signal[Double]): Signal[Set[Double]] = Signal {
-        val rootd = math.sqrt(delta())
-        if rootd == Double.NaN 
-          then Set()
+        val d = delta()
+        if d <=0 then Set()
         else 
+          val rootd = Math.sqrt(d)
           val _a = a()
           val _b = b()        
           val root1 = (-_b + rootd)/ (2 * _a)
