@@ -40,7 +40,20 @@ class Img(val width: Int, val height: Int, private val data: Array[RGBA]):
 def boxBlurKernel(src: Img, x: Int, y: Int, radius: Int): RGBA =
 
   // TODO implement using while loops
-  ???
+  var r =0; var g =0; var b= 0; var a = 0
+  var count=0
+  for{
+    i <- clamp(x-radius, 0, src.width-1) to clamp(x+radius, 0, src.width-1)
+    j <- clamp(y-radius, 0, src.height-1) to clamp(y+radius, 0, src.height-1)
+  } do {
+    val v = src(i, j)
+    r+=red(v)
+    g+=green(v)
+    b+=blue(v)
+    a+=alpha(v)
+    count+=1
+  }
+  rgba(r/count, g/count, b/count, a/count)
 
 val forkJoinPool = ForkJoinPool()
 

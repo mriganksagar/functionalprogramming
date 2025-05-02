@@ -10,7 +10,6 @@ object VerticalBoxBlurRunner:
     Key.exec.benchRuns := 10,
     Key.verbose := false
   ) withWarmer(Warmer.Default())
-
   def main(args: Array[String]): Unit =
     val radius = 3
     val width = 1920
@@ -41,7 +40,13 @@ object VerticalBoxBlur extends VerticalBoxBlurInterface:
    */
   def blur(src: Img, dst: Img, from: Int, end: Int, radius: Int): Unit =
     // TODO implement this method using the `boxBlurKernel` method
-    ???
+    for{
+      row <- 0 until src.height 
+      col <- from to end
+    } do {
+      val bluredPixel = boxBlurKernel(src, col, row, radius)
+      dst.update(col, row, bluredPixel)
+    }
 
   /** Blurs the columns of the source image in parallel using `numTasks` tasks.
    *
@@ -51,5 +56,7 @@ object VerticalBoxBlur extends VerticalBoxBlurInterface:
    */
   def parBlur(src: Img, dst: Img, numTasks: Int, radius: Int): Unit =
     // TODO implement using the `task` construct and the `blur` method
-    ???
-
+    val step = (src.width - 1)/ numTasks + 1 // celing division
+    val splittingPoints = (0 until src.width by step) :+ src.width
+    val strips = splittingPoints zip splittingPoints.tail.map(_-1)
+    strips.map(p => task(blur(src, dst, p._1, p._2, radius))).map(_.join())
