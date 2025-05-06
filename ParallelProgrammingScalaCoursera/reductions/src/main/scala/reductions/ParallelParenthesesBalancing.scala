@@ -66,9 +66,9 @@ object ParallelParenthesesBalancing extends ParallelParenthesesBalancingInterfac
       if threshold >= until - from then traverse(from, until, 0, 0)
       else {
         val mid = from + (until - from)/2
-        val (p1, p2) = parallel(reduce(from, mid), reduce(mid, until))
-        if p1._2 > p2._1 then (p1._1, p2._2 + p1._2 - p2._1)
-        else (p1._1 + p2._1 - p1._2, p2._2)
+        val ((leftOpen, leftClose), (rightOpen, rightClose)) = parallel(reduce(from, mid), reduce(mid, until))
+        if leftOpen > rightClose then (rightOpen + leftOpen - rightClose, leftClose)
+        else (rightOpen, leftClose + rightClose - leftOpen)
       }
     }
 
