@@ -48,18 +48,23 @@ object ParallelCountChange extends ParallelCountChangeInterface:
   /** Returns the number of ways change can be made from the specified list of
    *  coins for the specified amount of money.
    */
-  /*  
+  /*
     It will give duplicates
     to avoid
   */
-  def countChange_givesDuplicates(money: Int, coins: List[Int]): Int =
+  def countChange_giveDuplicates(money: Int, coins: List[Int]): Int =
     coins.collect{
       case coin if coin < money => countChange(money - coin, coins)
       case coin if coin == money => 1
     }.sum
-    
-  def countChange(money: Int, coins: List[Int]): Int = ???
-  
+
+  def countChange(money: Int, coins: List[Int]): Int =
+    if money == 0 then 1
+    else if money < 0 || coins.isEmpty then 0
+    else {
+      countChange(money - coins.head, coins) + countChange(money, coins.tail)
+    }
+
   type Threshold = (Int, List[Int]) => Boolean
 
   /** In parallel, counts the number of ways change can be made from the
@@ -67,17 +72,20 @@ object ParallelCountChange extends ParallelCountChangeInterface:
    */
   def parCountChange(money: Int, coins: List[Int], threshold: Threshold): Int =
     if threshold(money, coins) then countChange(money, coins)
-    else 
+    else {
+      val (c1, c2) = parallel(parCountChange(money - coins.head, coins, threshold), parCountChange(money, coins.tail, threshold))
+      c1 + c2
+    }
 
   /** Threshold heuristic based on the starting money. */
   def moneyThreshold(startingMoney: Int): Threshold =
-    ???
+    (money: Int, _: List[Int]) => money <=(2*startingMoney)/3
 
   /** Threshold heuristic based on the total number of initial coins. */
   def totalCoinsThreshold(totalCoins: Int): Threshold =
-    ???
+    (_: Int, coins: List[Int]) => coins.length <= (2* totalCoins)/3
 
 
   /** Threshold heuristic based on the starting money and the initial list of coins. */
   def combinedThreshold(startingMoney: Int, allCoins: List[Int]): Threshold =
-    ???
+    (money: Int, coins: List[Int]) => money * coins.length <= (startingMoney * allCoins.length)/2
